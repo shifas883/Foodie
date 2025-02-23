@@ -1,0 +1,47 @@
+import 'package:flutter/material.dart';
+import '../models/food_model.dart';
+
+class CartProvider extends ChangeNotifier {
+  final Map<String, CartItem> _items = {};
+
+  Map<String, CartItem> get items => _items;
+
+  int get totalItems => _items.values.fold(0, (sum, item) => sum + item.quantity);
+
+  double get totalPrice =>
+      _items.values.fold(0.0, (sum, item) => sum + (double.tryParse(item.dish.price)! * item.quantity));
+
+  void addToCart(Dish dish) {
+    if (_items.containsKey(dish.id)) {
+      _items[dish.id]!.quantity++;
+    } else {
+      _items[dish.id.toString()] = CartItem(dish: dish, quantity: 1);
+    }
+    notifyListeners();
+  }
+
+  void removeFromCart(Dish dish) {
+    if (_items.containsKey(dish.id)) {
+      if (_items[dish.id]!.quantity > 1) {
+        _items[dish.id]!.quantity--;
+      } else {
+        _items.remove(dish.id);
+      }
+      notifyListeners();
+    }
+  }
+
+  void clearCart() {
+    _items.clear();
+    notifyListeners();
+  }
+
+}
+
+
+class CartItem {
+  final Dish dish;
+  int quantity;
+
+  CartItem({required this.dish, required this.quantity});
+}
